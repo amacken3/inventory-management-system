@@ -81,3 +81,36 @@ def import_product(barcode, price, stock):
 
     else:
         print("Failed to import product.")
+
+def delete_inventory_item(item_id):
+    response = requests.delete(f"{BASE_URL}/inventory/{item_id}")
+
+    if response.status_code == 200:
+        data = response.json()
+        print(data["message"])
+
+    elif response.status_code == 404:
+        error = response.json()
+        print(error["error"])
+
+    else:
+        print("Failed to delete item.")
+
+def update_inventory_item(item_id, updates):
+    response = requests.patch(
+        f"{BASE_URL}/inventory/{item_id}",
+        json=updates
+    )
+
+    if response.status_code == 200:
+        item = response.json()
+        print("Item updated successfully!")
+        print_item(item, show_ingredients=True)
+
+    elif response.status_code == 404:
+        error = response.json()
+        print(error["error"])
+
+    else:
+        print("Failed to update item.")
+
