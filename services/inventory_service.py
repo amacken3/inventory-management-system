@@ -9,6 +9,8 @@ class InventoryService:
         for item in self._inventory:
             if item["id"] == item_id:
                 return item
+            
+        return None
     
     def create_item(self, data):
         highest_id = 0
@@ -41,4 +43,12 @@ class InventoryService:
                     
                 return item
             
+        return None
+    
+    def delete_item(self, item_id):
+        for item in self._inventory:
+            if item["id"] == item_id:
+                self._inventory.remove(item)
+                return item
+        
         return None

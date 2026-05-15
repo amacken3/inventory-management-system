@@ -101,3 +101,18 @@ def test_update_inventory_item_returns_404_for_missing_item(client):
 
     assert response.status_code == 404
     assert data["error"] == "Item not found"
+
+def test_delete_inventory_item(client):
+    response = client.delete("/inventory/1")
+    data = response.get_json()
+
+    assert response.status_code == 200
+    assert data["message"] == "Item deleted successfully"
+
+
+def test_delete_inventory_item_returns_404_for_missing_item(client):
+    response = client.delete("/inventory/999")
+    data = response.get_json()
+
+    assert response.status_code == 404
+    assert data["error"] == "Item not found"
