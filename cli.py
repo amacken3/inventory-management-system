@@ -45,3 +45,21 @@ def get_inventory_item(item_id):
 
     else:
         print("Failed to fetch item.")
+
+def search_product(barcode):
+    response = requests.get(f"{BASE_URL}/inventory/search/{barcode}")
+
+    if response.status_code == 200:
+        product = response.json()
+        print(f"Name: {product['name']}")
+        print(f"Brand: {product['brand']}")
+        print(f"Barcode: {product['barcode']}")
+        print(f"Nutrition Grade: {product.get('nutrition_grade', 'N/A')}")
+        print(f"Ingredients: {product.get('ingredients', 'N/A')}")
+    
+    elif response.status_code == 404:
+        error = response.json()
+        print(error["error"])
+
+    else:
+        print("Failed to search product")

@@ -64,3 +64,38 @@ def test_get_inventory_item_displays_error_when_not_found(capsys):
     captured = capsys.readouterr()
 
     assert "Item not found" in captured.out
+
+def test_search_product_displays_product_data(capsys):
+    mock_product = {
+        "name": "Nutella",
+        "brand": "Ferrero",
+        "barcode": "3017624010701",
+        "ingredients": "sugar, palm oil, hazelnuts",
+        "nutrition_grade": "e"
+    }
+
+    with patch("cli.requests.get") as mock_get:
+        mock_get.return_value.status_code = 200
+        mock_get.return_value.json.return_value = mock_product
+
+        cli.search_product("3017624010701")
+
+    captured = capsys.readouterr()
+
+    assert "Nutella" in captured.out
+    assert "Ferrero" in captured.out
+    assert "3017624010701" in captured.out
+    assert "Nutrition Grade: e" in captured.out
+    assert "Ingredients: sugar, palm oil, hazelnuts" in captured.out
+
+
+def test_search_product_displays_error_when_not_found(capsys):
+    with patch("cli.requests.get") as mock_get:
+        mock_get.return_value.status_code = 404
+        mock_get.return_value.json.return_value = {"error": "Product not found"}
+
+        cli.search_product("0000000000000")
+
+    captured = capsys.readouterr()
+
+    assert "Product not found" in captured.out
