@@ -75,3 +75,29 @@ def test_create_inventory_item_requires_name(client):
 
     assert response.status_code == 400
     assert data["error"] == "Missing required field: name"
+
+def test_update_inventory_item(client):
+    updated_data = {
+        "stock": 30,
+        "price": 4.49
+    }
+
+    response = client.patch("/inventory/1", json=updated_data)
+    data = response.get_json()
+
+    assert response.status_code == 200
+    assert data["id"] == 1
+    assert data["stock"] == 30
+    assert data["price"] == 4.49
+
+
+def test_update_inventory_item_returns_404_for_missing_item(client):
+    updated_data = {
+        "stock": 30
+    }
+
+    response = client.patch("/inventory/999", json=updated_data)
+    data = response.get_json()
+
+    assert response.status_code == 404
+    assert data["error"] == "Item not found"

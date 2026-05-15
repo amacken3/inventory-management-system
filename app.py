@@ -6,6 +6,7 @@ app = Flask(__name__)
 
 inventory_service = InventoryService(inventory)
 
+
 @app.route("/")
 def home():
     return jsonify({"message": "Inventory Management API"})
@@ -36,6 +37,17 @@ def create_inventory_item():
     new_item = inventory_service.create_item(data)
 
     return jsonify(new_item), 201
+
+@app.route("/inventory/<int:item_id>", methods=["PATCH"])
+def update_inventory_item(item_id):
+    data = request.get_json()
+
+    updated_item = inventory_service.update_item(item_id, data)
+
+    if updated_item is None:
+        return jsonify({"error": "Item not found"}), 404
+    
+    return jsonify(updated_item), 200
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)

@@ -31,3 +31,14 @@ class InventoryService:
         self._inventory.append(new_item)
 
         return new_item
+    
+    def update_item(self, item_id, data):
+        for item in self._inventory:
+            if item["id"] == item_id:
+                for key, value in data.items():
+                    if key != "id":
+                        item[key] = value
+                    
+                return item
+            
+        return None
