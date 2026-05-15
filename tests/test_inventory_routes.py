@@ -38,3 +38,40 @@ def test_get_inventory_item_returns_404_for_missing_item(client):
 
     assert response.status_code == 404
     assert data["error"] == "Item not found"
+
+def test_create_inventory_item(client):
+    new_item = {
+        "name": "Peanut Butter",
+        "brand": "Jif",
+        "barcode": "123456789012",
+        "price": 3.99,
+        "stock": 20,
+        "ingredients": "Peanuts, sugar, salt",
+        "nutrition_grade": "c"
+    }
+
+    response = client.post("/inventory", json=new_item)
+    data = response.get_json()
+
+    assert response.status_code == 201
+    assert isinstance(data, dict)
+    assert "id" in data
+    assert data["name"] == "Peanut Butter"
+    assert data["brand"] == "Jif"
+    assert data["barcode"] == "123456789012"
+    assert data["price"] == 3.99
+    assert data["stock"] == 20
+
+def test_create_inventory_item_requires_name(client):
+    new_item = {
+        "brand": "Jif",
+        "barcode": "123456789012",
+        "price": 3.99,
+        "stock": 20
+    }
+
+    response = client.post("/inventory", json=new_item)
+    data = response.get_json()
+
+    assert response.status_code == 400
+    assert data["error"] == "Missing required field: name"

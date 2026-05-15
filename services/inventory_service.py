@@ -9,3 +9,25 @@ class InventoryService:
         for item in self._inventory:
             if item["id"] == item_id:
                 return item
+    
+    def create_item(self, data):
+        highest_id = 0
+
+        for item in self._inventory:
+            if item["id"] > highest_id:
+                highest_id = item["id"]
+
+        new_item = {
+            "id": highest_id + 1,
+            "name": data["name"],
+            "brand": data["brand"],
+            "barcode": data["barcode"],
+            "price": data["price"],
+            "stock": data["stock"],
+            "ingredients": data.get("ingredients", ""),
+            "nutrition_grade": data.get("nutrition_grade", "")
+        }
+
+        self._inventory.append(new_item)
+
+        return new_item

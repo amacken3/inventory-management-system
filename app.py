@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from data.inventory_data import inventory
 from services.inventory_service import InventoryService
 
@@ -22,6 +22,20 @@ def get_inventory_item(item_id):
         return jsonify({"error": "Item not found"}), 404
 
     return jsonify(item), 200
+
+@app.route("/inventory", methods=["POST"])
+def create_inventory_item():
+    data = request.get_json()
+
+    required_fields = ["name", "brand", "barcode", "price", "stock"]
+
+    for field in required_fields:
+        if not data or field not in data:
+            return jsonify({"error": f"Missing required field: {field}"}), 400
+
+    new_item = inventory_service.create_item(data)
+
+    return jsonify(new_item), 201
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
