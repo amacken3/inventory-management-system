@@ -1,6 +1,5 @@
 import requests
 
-
 class OpenFoodFactsService:
     def __init__(self):
         self._base_url = "https://world.openfoodfacts.org/api/v2/product"
