@@ -1,11 +1,13 @@
 from flask import Flask, jsonify, request
 from data.inventory_data import inventory
 from services.inventory_service import InventoryService
+from services.openfoodfacts_service import OpenFoodFactsService
 
 app = Flask(__name__)
 
 inventory_service = InventoryService(inventory)
 
+openfoodfacts_service = OpenFoodFactsService()
 
 @app.route("/")
 def home():
@@ -57,6 +59,15 @@ def delete_inventory_item(item_id):
         return jsonify({"error": "Item not found"}), 404
     
     return jsonify({"message": "Item deleted successfully"}), 200
+
+@app.route("/inventory/search/<barcode>", methods=["GET"])
+def search_inventory_by_barcode(barcode):
+    product = openfoodfacts_service.get_product_by_barcode(barcode)
+
+    if product is None:
+        return jsonify({"error": "Product not found"}), 404
+
+    return jsonify(product), 200
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)

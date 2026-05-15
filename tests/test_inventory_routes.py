@@ -1,5 +1,6 @@
 import pytest
 from app import app
+from unittest.mock import patch
 
 
 @pytest.fixture
@@ -116,3 +117,33 @@ def test_delete_inventory_item_returns_404_for_missing_item(client):
 
     assert response.status_code == 404
     assert data["error"] == "Item not found"
+
+def test_search_inventory_by_barcode_returns_product_data(client):
+    mock_product = {
+        "name": "Nutella",
+        "brand": "Ferrero",
+        "barcode": "3017624010701",
+        "ingredients": "sugar, palm oil, hazelnuts",
+        "nutrition_grade": "e"
+    }
+
+    with patch("app.openfoodfacts_service.get_product_by_barcode") as mock_get_product:
+        mock_get_product.return_value = mock_product
+
+        response = client.get("/inventory/search/3017624010701")
+        data = response.get_json()
+
+    assert response.status_code == 200
+    assert data == mock_product
+    mock_get_product.assert_called_once_with("3017624010701")
+
+
+def test_search_inventory_by_barcode_returns_404_when_product_not_found(client):
+    with patch("app.openfoodfacts_service.get_product_by_barcode") as mock_get_product:
+        mock_get_product.return_value = None
+
+        response = client.get("/inventory/search/0000000000000")
+        data = response.get_json()
+
+    assert response.status_code == 404
+    assert data["error"] == "Product not found"
