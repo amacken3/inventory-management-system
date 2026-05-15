@@ -63,3 +63,21 @@ def search_product(barcode):
 
     else:
         print("Failed to search product")
+
+def import_product(barcode, price, stock):
+    response = requests.post(
+        f"{BASE_URL}/inventory/import/{barcode}",
+        json={"price": price, "stock": stock}
+    )
+
+    if response.status_code == 201:
+        item = response.json()
+        print("Product imported successfully!")
+        print_item(item, show_ingredients=True)
+
+    elif response.status_code in [400, 404]:
+        error = response.json()
+        print(error["error"])
+
+    else:
+        print("Failed to import product.")
