@@ -69,5 +69,27 @@ def search_inventory_by_barcode(barcode):
 
     return jsonify(product), 200
 
+@app.route("/inventory/import/<barcode>", methods=["POST"])
+def import_product_by_barcode(barcode):
+    data = request.get_json()
+
+    required_fields = ["price", "stock"]
+
+    for field in required_fields:
+        if not data or field not in data:
+            return jsonify({"error": f"Missing required field: {field}"}), 400
+
+    product = openfoodfacts_service.get_product_by_barcode(barcode)
+
+    if product is None:
+        return jsonify({"error": "Product not found"}), 404
+
+    product["price"] = data["price"]
+    product["stock"] = data["stock"]
+
+    new_item = inventory_service.create_item(product)
+
+    return jsonify(new_item), 201
+
 if __name__ == '__main__':
     app.run(port=5555, debug=True)

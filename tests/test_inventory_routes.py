@@ -147,3 +147,75 @@ def test_search_inventory_by_barcode_returns_404_when_product_not_found(client):
 
     assert response.status_code == 404
     assert data["error"] == "Product not found"
+
+def test_import_product_by_barcode_adds_product_to_inventory(client):
+    mock_product = {
+        "name": "Nutella",
+        "brand": "Ferrero",
+        "barcode": "3017624010701",
+        "ingredients": "sugar, palm oil, hazelnuts",
+        "nutrition_grade": "e"
+    }
+
+    request_data = {
+        "price": 5.99,
+        "stock": 12
+    }
+
+    with patch("app.openfoodfacts_service.get_product_by_barcode") as mock_get_product:
+        mock_get_product.return_value = mock_product
+
+        response = client.post("/inventory/import/3017624010701", json=request_data)
+        data = response.get_json()
+
+    assert response.status_code == 201
+    assert "id" in data
+    assert data["name"] == "Nutella"
+    assert data["brand"] == "Ferrero"
+    assert data["barcode"] == "3017624010701"
+    assert data["ingredients"] == "sugar, palm oil, hazelnuts"
+    assert data["nutrition_grade"] == "e"
+    assert data["price"] == 5.99
+    assert data["stock"] == 12
+
+    mock_get_product.assert_called_once_with("3017624010701")
+
+
+def test_import_product_by_barcode_requires_price(client):
+    request_data = {
+        "stock": 12
+    }
+
+    response = client.post("/inventory/import/3017624010701", json=request_data)
+    data = response.get_json()
+
+    assert response.status_code == 400
+    assert data["error"] == "Missing required field: price"
+
+
+def test_import_product_by_barcode_requires_stock(client):
+    request_data = {
+        "price": 5.99
+    }
+
+    response = client.post("/inventory/import/3017624010701", json=request_data)
+    data = response.get_json()
+
+    assert response.status_code == 400
+    assert data["error"] == "Missing required field: stock"
+
+
+def test_import_product_by_barcode_returns_404_when_product_not_found(client):
+    request_data = {
+        "price": 5.99,
+        "stock": 12
+    }
+
+    with patch("app.openfoodfacts_service.get_product_by_barcode") as mock_get_product:
+        mock_get_product.return_value = None
+
+        response = client.post("/inventory/import/0000000000000", json=request_data)
+        data = response.get_json()
+
+    assert response.status_code == 404
+    assert data["error"] == "Product not found"
