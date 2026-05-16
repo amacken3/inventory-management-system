@@ -85,7 +85,7 @@ pipenv run python inventory_cli.py update 1 --stock 30
 pipenv run python inventory_cli.py delete 2
 ```
 
-## Running the Tests
+## Running the Written Tests
 ```bash
 pipenv run pytest -x
 
